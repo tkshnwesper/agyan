@@ -1,0 +1,9 @@
+name: agyan
+version: 0.1.0
+
+authors:
+  - Saurabh Machave <unknown7bolt@gmail.com>
+
+crystal: 1.0.0
+
+license: MIT
