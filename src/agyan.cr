@@ -14,25 +14,28 @@ module Agyan
           raise "Mock for the method {{ method.name }} not found" unless parameters
           parameters.get_return_value
         end
-        def __on__{{ method.name }}(parameters : Parameters_{{ method.name }})
+
+        protected def __on__{{ method.name }}(parameters : Parameters_{{ method.name }})
           @__on_list__{{ method.name }} << parameters
         end
-        class Parameters_{{ method.name }} < Parameters
+
+        private class Parameters_{{ method.name }}
           def with({{ *method.args }})
             {% for arg in method.args %}
               @{{ arg.name }} = {{ arg.name }}
             {% end %}
             self
           end
+
           def then_return(@return_value : {{ method.return_type.resolve.id }})
-            raise "Nil return value provided" unless @return_value
           end
+
           def get_return_value
-            raise "Please provide a return value for the method {{ method.name }}" unless @return_value
             @return_value
           end
         end
       {% end %}
+
       def self.on(mock : self, method : Symbol)
         {% begin %}
           case method
@@ -47,24 +50,6 @@ module Agyan
           {% end %}
         parameters
       end
-    end
-  end
-
-  private class Parameters
-    def get_return_value
-    end
-  end
-
-  private class On
-    def initialize(@method : Symbol, @parameters : Parameters)
-    end
-
-    def get_parameters
-      @parameters
-    end
-
-    def method_eq?(method_name)
-      @method == method_name
     end
   end
 end
