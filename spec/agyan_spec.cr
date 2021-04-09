@@ -22,5 +22,22 @@ describe Agyan do
       mock = MockedClass.new
       mock.responds_to?(:method_with_no_parameters).should eq(true)
     end
+
+    it "returns a value specified by user" do
+      mock = MockedClass.new
+      return_value = 123
+      MockedClass.on(mock, :method_with_no_parameters).with().then_return(return_value)
+      mock.method_with_no_parameters.should eq(return_value)
+    end
+
+    it "returns different values when called different times" do
+      mock = MockedClass.new
+      return_value = 123
+      return_value_two = 110
+      MockedClass.on(mock, :method_with_no_parameters).with().then_return(return_value)
+      MockedClass.on(mock, :method_with_no_parameters).with().then_return(return_value_two)
+      mock.method_with_no_parameters.should eq(return_value)
+      mock.method_with_no_parameters.should eq(return_value_two)
+    end
   end
 end
