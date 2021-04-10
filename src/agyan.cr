@@ -1,10 +1,6 @@
 module Agyan
   VERSION = "0.1.0"
 
-  macro on_list(method)
-    @__on_list__{{ method.name }}
-  end
-
   macro mock_class(type, name = nil)
     class {% if name %} {{name}} {% else %} Mock{{type.id}} {% end %} < {{ type.id }}
       {% for method in type.resolve.methods %}
