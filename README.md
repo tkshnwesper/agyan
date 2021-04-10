@@ -1,13 +1,13 @@
-# agyan
+# Agyan (अज्ञान, Ajñāna) | [meaning][meaning-of-agyan]
 
-TODO: Write a description here
+An [idiomatic][idiomatic-definition] mocking library for Crystal 💎
 
 ## Installation
 
 1. Add the dependency to your `shard.yml`:
 
    ```yaml
-   dependencies:
+   development_dependencies:
      agyan:
        github: tkshnwesper/agyan
    ```
@@ -18,13 +18,78 @@ TODO: Write a description here
 
 ```crystal
 require "agyan"
+
+import Agyan
 ```
 
-TODO: Write usage instructions here
+### Create a `class` mock
+
+```crystal
+class Garden
+end
+
+mock_class(Garden)  # Creates class called `MockGarden`
+```
+
+### It also takes an optional name parameter
+
+```crystal
+class Rocket
+end
+
+mock_class(Rocket, MockedRocket)  # Creates class called `MockedRocket`
+```
+
+### Define return values
+
+```crystal
+class Farm
+  def get_animals : Array(String)
+  end
+end
+
+mock_class(Farm)
+
+describe Farm do
+  it "fetches animals" do
+    mock = MockFarm.new
+    MockFarm.on(mock, :get_animals).with().then_return(["Piggy", "Horsey", "Donkey"])
+    mock.get_animals.should eq(["Piggy", "Horsey", "Donkey"])
+  end
+end
+```
+
+### There is support for overridden methods
+
+```crystal
+class Vault
+  def check_pin(pin : Int32) : Bool
+  end
+
+  def check_pin(pin : String) : Bool
+  end
+end
+
+mock_class(Vault)
+
+describe Vault do
+  it "checks pin" do
+    mock = MockVault.new
+    MockVault.on(mock, :check_pin).with(123).then_return(true)
+    MockVault.on(mock, :check_pin).with("Agyan").then_return(false)
+    mock.check_pin(123).should be_truthy
+    mock.check_pin("Agyan").should be_falsey
+  end
+end
+```
 
 ## Development
 
-TODO: Write development instructions here
+Run tests using
+
+```
+crystal spec
+```
 
 ## Contributing
 
@@ -37,3 +102,6 @@ TODO: Write development instructions here
 ## Contributors
 
 - [Saurabh Machave](https://github.com/tkshnwesper) - creator and maintainer
+
+[idiomatic-definition]: https://www.lexico.com/definition/idiomatic
+[meaning-of-agyan]: (https://www.wisdomlib.org/definition/ajnana#sanskrit)
