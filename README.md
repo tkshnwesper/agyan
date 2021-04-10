@@ -1,6 +1,8 @@
-# Agyan (अज्ञान, Ajñāna) | [meaning][meaning-of-agyan]
+# Agyan (अज्ञान, Ajñāna)
 
-An [idiomatic][idiomatic-definition] mocking library for Crystal 💎
+An [idiomatic](idiomatic-definition) mocking library for Crystal 💎
+
+[Meaning](meaning-of-agyan) of Agyan.
 
 ## Installation
 
@@ -59,7 +61,7 @@ describe Farm do
 end
 ```
 
-### There is support for overridden methods
+### There is also support for overridden methods
 
 ```crystal
 class Vault
