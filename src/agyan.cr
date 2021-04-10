@@ -10,10 +10,11 @@ module Agyan
       {% for method in type.resolve.methods %}
         @__on_list__{{ method.name }} = [] of Parameters_{{ method.name }}
         def {{ method.name }}({{ *method.args }})
-          parameters = @__on_list__{{ method.name }}.select &.is_arg_match?({{ *method.args.map &.name }})
-          parameters = parameters.select { |parameter| !parameter.is_returned? }
+          parameters = @__on_list__{{ method.name }}.select do |parameter|
+            parameter.is_arg_match?({{ *method.args.map &.name }}) && !parameter.is_returned?
+          end
           raise "Mock for the method {{ method.name }} not found" unless parameters.size > 0
-          parameters.first.get_return_value
+          parameters.first.get_return_value!
         end
 
         protected def __on__{{ method.name }}(parameters : Parameters_{{ method.name }})
@@ -40,7 +41,7 @@ module Agyan
           def then_return(@return_value : {{ method.return_type.resolve.id }})
           end
 
-          def get_return_value
+          def get_return_value!
             @is_returned = true
             @return_value
           end
