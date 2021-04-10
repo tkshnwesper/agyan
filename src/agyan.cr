@@ -10,9 +10,10 @@ module Agyan
       {% for method in type.resolve.methods %}
         @__on_list__{{ method.name }} = [] of Parameters_{{ method.name }}
         def {{ method.name }}({{ *method.args }})
-          parameters = @__on_list__{{ method.name }}.shift?
-          raise "Mock for the method {{ method.name }} not found" unless parameters
-          parameters.get_return_value
+          parameters = @__on_list__{{ method.name }}.select &.is_arg_match?({{ *method.args.map &.name }})
+          parameters = parameters.select { |parameter| !parameter.is_returned? }
+          raise "Mock for the method {{ method.name }} not found" unless parameters.size > 0
+          parameters.first.get_return_value
         end
 
         protected def __on__{{ method.name }}(parameters : Parameters_{{ method.name }})
@@ -20,34 +21,49 @@ module Agyan
         end
 
         private class Parameters_{{ method.name }}
+          getter? is_returned = false
+
           def with({{ *method.args }})
             {% for arg in method.args %}
-              @{{ arg.name }} = {{ arg.name }}
+              @__arg_{{ arg.name }} = {{ arg.name }}
             {% end %}
             self
+          end
+
+          def is_arg_match?({{ *method.args }})
+            {% for arg in method.args %}
+              @__arg_{{ arg.name }} == {{ arg.name }} &&
+            {% end %}
+            true
           end
 
           def then_return(@return_value : {{ method.return_type.resolve.id }})
           end
 
           def get_return_value
+            @is_returned = true
             @return_value
           end
         end
       {% end %}
 
       def self.on(mock : self, method : Symbol)
+        {% methods = [] of Crystal::Macros::MacroId %}
+        {% for method_type in type.resolve.methods %}
+          {% methods << method_type.name %}
+        {% end %}
+        {% methods = methods.uniq %}
         {% begin %}
           case method
-          {% for method in type.resolve.methods %}
-            when :{{ method.name }}
-              parameters = Parameters_{{ method.name }}.new
-              mock.__on__{{ method.name }}(parameters)
+          {% for method_name in methods %}
+            when :{{ method_name }}
+              parameters = Parameters_{{ method_name }}.new
+              mock.__on__{{ method_name }}(parameters)
           {% end %}
           else
             raise "Method #{method} not found in class"
           end
-          {% end %}
+        {% end %}
         parameters
       end
     end

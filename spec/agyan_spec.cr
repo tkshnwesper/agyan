@@ -6,6 +6,9 @@ class ClassToBeMocked
   def method_with_no_parameters : Int32
     456
   end
+  def method_with_no_parameters(num : Int32) : Int32
+    num * 456
+  end
 end
 
 mock_class(ClassToBeMocked)
@@ -38,6 +41,16 @@ describe Agyan do
       MockedClass.on(mock, :method_with_no_parameters).with().then_return(return_value_two)
       mock.method_with_no_parameters.should eq(return_value)
       mock.method_with_no_parameters.should eq(return_value_two)
+    end
+
+    it "mocks a overridden method" do
+      mock = MockedClass.new
+      return_value = 123
+      return_value_two = 110
+      MockedClass.on(mock, :method_with_no_parameters).with().then_return(return_value)
+      MockedClass.on(mock, :method_with_no_parameters).with(110).then_return(return_value_two)
+      mock.method_with_no_parameters.should eq(return_value)
+      mock.method_with_no_parameters(110).should eq(return_value_two)
     end
   end
 end
