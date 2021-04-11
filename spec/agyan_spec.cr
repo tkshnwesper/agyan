@@ -38,8 +38,8 @@ describe Agyan do
       mock = MockedClass.new
       return_value = 123
       return_value_two = 110
-      MockedClass.on(mock, :some_method).with.then_return(return_value)
-      MockedClass.on(mock, :some_method).with.then_return(return_value_two)
+      MockedClass.on(mock, :some_method).then_return(return_value)
+      MockedClass.on(mock, :some_method).then_return(return_value_two)
       mock.some_method.should eq(return_value)
       mock.some_method.should eq(return_value_two)
     end
@@ -48,10 +48,10 @@ describe Agyan do
       mock = MockedClass.new
       return_value = 123
       return_value_two = 110
-      MockedClass.on(mock, :some_method).with.then_return(return_value)
+      MockedClass.on(mock, :some_method).then_return(return_value)
       MockedClass.on(mock, :some_method).with(110).then_return(return_value_two)
-      mock.some_method.should eq(return_value)
       mock.some_method(110).should eq(return_value_two)
+      mock.some_method.should eq(return_value)
     end
   end
 end

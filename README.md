@@ -55,7 +55,7 @@ mock_class(Farm)
 describe Farm do
   it "fetches animals" do
     mock = MockFarm.new
-    MockFarm.on(mock, :get_animals).with().then_return(["Piggy", "Horsey", "Donkey"])
+    MockFarm.on(mock, :get_animals).then_return(["Piggy", "Horsey", "Donkey"])
     mock.get_animals.should eq(["Piggy", "Horsey", "Donkey"])
   end
 end
