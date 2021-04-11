@@ -5,6 +5,7 @@ module Agyan
     class {% if name %} {{name}} {% else %} Mock{{type.id}} {% end %} < {{ type.id }}
       {% for method in type.resolve.methods %}
         @__on_list__{{ method.name }} = [] of Parameters_{{ method.name }}
+
         def {{ method.name }}({{ *method.args }})
           parameters = @__on_list__{{ method.name }}.select do |parameter|
             parameter.is_arg_match?({{ *method.args.map &.name }}) && !parameter.is_returned?
