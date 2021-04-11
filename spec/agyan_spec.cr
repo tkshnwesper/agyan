@@ -70,13 +70,21 @@ describe Agyan do
       mock.some_method.should eq(return_value)
     end
 
-    it "asserts exceptions" do
+    it "raises an error on failed assertion of expectation" do
       mock = MockedClass.new
       return_value = 123
       MockedClass.on(mock, :some_method).then_return(return_value)
       expect_raises Exception, "`some_method` was not called on a `MockedClass` instance" do
         MockedClass.assert_expectations(mock)
       end
+    end
+
+    it "asserts expectation successfully" do
+      mock = MockedClass.new
+      return_value = 123
+      MockedClass.on(mock, :some_method).then_return(return_value)
+      mock.some_method.should eq(123)
+      MockedClass.assert_expectations(mock)
     end
   end
 end
