@@ -34,6 +34,14 @@ describe Agyan do
       mock.some_method.should eq(return_value)
     end
 
+    it "raises exception when method is not mocked" do
+      mock = MockedClass.new
+      return_value = 123
+      expect_raises Exception, "Mock for the method some_method not found" do
+        mock.some_method.should eq(return_value)
+      end
+    end
+
     it "returns different values when called different times" do
       mock = MockedClass.new
       return_value = 123
