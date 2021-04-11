@@ -74,7 +74,7 @@ describe Agyan do
       mock = MockedClass.new
       return_value = 123
       MockedClass.on(mock, :some_method).then_return(return_value)
-      expect_raises Exception, "`some_method` was not called on MockedClass instance" do
+      expect_raises Exception, "`some_method` was not called on a `MockedClass` instance" do
         MockedClass.assert_expectations(mock)
       end
     end

@@ -70,7 +70,7 @@ module Agyan
           not_called_expectations = mock.__on_list__{{ method.name }}.select do |parameter|
             !parameter.is_returned?
           end
-          raise "`{{ method.name }}` was not called on #{mock.class} instance" if not_called_expectations.size > 0
+          raise "`{{ method.name }}` was not called on a `#{mock.class}` instance" if not_called_expectations.size > 0
         {% end %}
       end
     end
