@@ -11,7 +11,8 @@ module Agyan
             parameter.is_arg_match?({{ *method.args.map &.name }}) && !parameter.is_returned?
           end
           raise "Mock for the method {{ method.name }} not found" unless parameters.size > 0
-          parameters.first.get_return_value!
+          parameters.first.is_returned = true
+          parameters.first.return_value
         end
 
         protected def __on__{{ method.name }}(parameters : Parameters_{{ method.name }})
@@ -19,7 +20,8 @@ module Agyan
         end
 
         private class Parameters_{{ method.name }}
-          getter? is_returned = false
+          getter return_value : Nil | {{ method.return_type.resolve.id }}
+          property? is_returned = false
 
           def with({{ *method.args }})
             {% for arg in method.args %}
@@ -36,11 +38,6 @@ module Agyan
           end
 
           def then_return(@return_value : {{ method.return_type.resolve.id }})
-          end
-
-          def get_return_value!
-            @is_returned = true
-            @return_value
           end
         end
       {% end %}
