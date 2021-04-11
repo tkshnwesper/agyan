@@ -35,6 +35,8 @@ import Agyan
 
 ### Create a `class` mock
 
+`mock_class` can only be called at the root level or in modules, because it is a macro that creates a mock class, and classes have a limitation that they cannot be created inside methods.
+
 ```crystal
 class Garden
 end
