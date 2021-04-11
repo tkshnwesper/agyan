@@ -56,18 +56,58 @@ mock_class(Rocket, MockedRocket)  # Creates class called `MockedRocket`
 ### Define return values
 
 ```crystal
-class Farm
-  def get_animals : Array(String)
+class Vault
+  def open : Bool
   end
 end
 
-mock_class(Farm)
+mock_class(Vault)
 
-describe Farm do
-  it "fetches animals" do
-    mock = MockFarm.new
-    MockFarm.on(mock, :get_animals).then_return(["Piggy", "Horsey", "Donkey"])
-    mock.get_animals.should eq(["Piggy", "Horsey", "Donkey"])
+describe Vault do
+  it "opens vault" do
+    mock = MockVault.new
+    MockVault.on(mock, :open).then_return(true)
+    mock.open.should be_truthy
+  end
+end
+```
+
+### Return only when specific parameters are passed
+
+```crystal
+class Vault
+  def open(pin : Int32) : Bool
+  end
+end
+
+mock_class(Vault)
+
+describe Vault do
+  it "opens vault" do
+    mock = MockVault.new
+    MockVault.on(mock, :open).with(123).then_return(true)
+    mock.open(123).should be_truthy
+  end
+end
+```
+
+### Assert expectations
+
+Check whether your code is calling the mocked methods with the correct parameters.
+
+```crystal
+class Vault
+  def open(pin : Int32) : Bool
+  end
+end
+
+mock_class(Vault)
+
+describe Vault do
+  it "opens vault" do
+    mock = MockVault.new
+    MockVault.on(mock, :open).with(123).then_return(true)
+    MockVault.assert_expectations(mock) # raises exception as `open` is not called with `(123)`
   end
 end
 ```
@@ -76,22 +116,22 @@ end
 
 ```crystal
 class Vault
-  def check_pin(pin : Int32) : Bool
+  def open(pin : Int32) : Bool
   end
 
-  def check_pin(pin : String) : Bool
+  def open(pin : String) : Bool
   end
 end
 
 mock_class(Vault)
 
 describe Vault do
-  it "checks pin" do
+  it "opens vault" do
     mock = MockVault.new
-    MockVault.on(mock, :check_pin).with(123).then_return(true)
-    MockVault.on(mock, :check_pin).with("Agyan").then_return(false)
-    mock.check_pin(123).should be_truthy
-    mock.check_pin("Agyan").should be_falsey
+    MockVault.on(mock, :open).with(123).then_return(true)
+    MockVault.on(mock, :open).with("Agyan").then_return(false)
+    mock.open(123).should be_truthy
+    mock.open("Agyan").should be_falsey
   end
 end
 ```

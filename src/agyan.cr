@@ -2,9 +2,9 @@ module Agyan
   VERSION = "0.1.0"
 
   macro mock_class(type, name = nil)
-    class {% if name %} {{name}} {% else %} Mock{{type.id}} {% end %} < {{ type.id }}
+    class {% if name %} {{ name }} {% else %} Mock{{ type.id }} {% end %} < {{ type.id }}
       {% for method in type.resolve.methods %}
-        @__on_list__{{ method.name }} = [] of Parameters_{{ method.name }}
+        getter __on_list__{{ method.name }} = [] of Parameters_{{ method.name }}
 
         def {{ method.name }}({{ *method.args }})
           parameters = @__on_list__{{ method.name }}.select do |parameter|
@@ -63,6 +63,15 @@ module Agyan
           end
         {% end %}
         parameters
+      end
+
+      def self.assert_expectations(mock : self)
+        {% for method in type.resolve.methods %}
+          not_called_expectations = mock.__on_list__{{ method.name }}.select do |parameter|
+            !parameter.is_returned?
+          end
+          raise "`{{ method.name }}` was not called on #{mock.class} instance" if not_called_expectations.size > 0
+        {% end %}
       end
     end
   end
