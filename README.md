@@ -18,6 +18,15 @@ An [idiomatic](idiomatic-definition) mocking library for Crystal 💎
 
 ## Usage
 
+### How to use the library in a nutshell
+
+1. Create a mock class
+2. Instantiate the above class into an object
+3. Setup expectations and return values for methods on that object
+4. Pass that object into the code that you want to test
+
+### Import the library
+
 ```crystal
 require "agyan"
 
