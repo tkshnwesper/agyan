@@ -27,6 +27,14 @@ describe Agyan do
       mock.responds_to?(:some_method).should eq(true)
     end
 
+    it "raises an exception when trying to mock that the class does not have" do
+      mock = MockedClass.new
+      return_value = 123
+      expect_raises Exception, "Method other_method not found in class" do
+        MockedClass.on(mock, :other_method).with.then_return(return_value)
+      end
+    end
+
     it "returns a value specified by user" do
       mock = MockedClass.new
       return_value = 123
