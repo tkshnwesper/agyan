@@ -12,8 +12,14 @@ class ClassToBeMocked
   end
 end
 
+class ClassWithInitialize
+  def initialize(value : Int32)
+  end
+end
+
 mock_class(ClassToBeMocked)
 mock_class(ClassToBeMocked, MockedClass)
+mock_class(ClassWithInitialize)
 
 describe Agyan do
   describe "mock class" do
@@ -31,7 +37,7 @@ describe Agyan do
       mock = MockedClass.new
       return_value = 123
       expect_raises Exception, "Method other_method not found in class" do
-        MockedClass.on(mock, :other_method).with.then_return(return_value)
+        MockedClass.on(mock, :other_method).with(45).then_return(return_value)
       end
     end
 
@@ -54,8 +60,8 @@ describe Agyan do
       mock = MockedClass.new
       return_value = 123
       return_value_two = 110
-      MockedClass.on(mock, :some_method).then_return(return_value)
-      MockedClass.on(mock, :some_method).then_return(return_value_two)
+      MockedClass.on(mock, :some_method).with.then_return(return_value)
+      MockedClass.on(mock, :some_method).with.then_return(return_value_two)
       mock.some_method.should eq(return_value)
       mock.some_method.should eq(return_value_two)
     end
@@ -64,7 +70,7 @@ describe Agyan do
       mock = MockedClass.new
       return_value = 123
       return_value_two = 110
-      MockedClass.on(mock, :some_method).then_return(return_value)
+      MockedClass.on(mock, :some_method).with.then_return(return_value)
       MockedClass.on(mock, :some_method).with(110).then_return(return_value_two)
       mock.some_method(110).should eq(return_value_two)
       mock.some_method.should eq(return_value)
@@ -73,7 +79,7 @@ describe Agyan do
     it "raises an error on failed assertion of expectation" do
       mock = MockedClass.new
       return_value = 123
-      MockedClass.on(mock, :some_method).then_return(return_value)
+      MockedClass.on(mock, :some_method).with.then_return(return_value)
       expect_raises Exception, "`some_method` was not called on a `MockedClass` instance" do
         MockedClass.assert_expectations(mock)
       end
@@ -82,7 +88,7 @@ describe Agyan do
     it "asserts expectation successfully" do
       mock = MockedClass.new
       return_value = 123
-      MockedClass.on(mock, :some_method).then_return(return_value)
+      MockedClass.on(mock, :some_method).with.then_return(return_value)
       mock.some_method.should eq(123)
       MockedClass.assert_expectations(mock)
     end

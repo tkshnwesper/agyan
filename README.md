@@ -48,9 +48,13 @@ mock_class(Garden)  # Creates class called `MockGarden`
 
 ```crystal
 class Rocket
+  def blast_off
+  end
 end
 
 mock_class(Rocket, MockedRocket)  # Creates class called `MockedRocket`
+
+# `blast_off` can now be mocked on an instance of `MockedRocket`
 ```
 
 ### Define return values
@@ -66,7 +70,7 @@ mock_class(Vault)
 describe Vault do
   it "opens vault" do
     mock = MockVault.new
-    MockVault.on(mock, :open).then_return(true)
+    MockVault.on(mock, :open).with.then_return(true)
     mock.open.should be_truthy
   end
 end
