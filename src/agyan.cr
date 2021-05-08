@@ -1,30 +1,43 @@
 module Agyan
-  VERSION = "0.1.0"
+  VERSION = "0.2.0"
 
   macro mock_class(type, name = nil)
     class {% if name %} {{ name }} {% else %} Mock{{ type.id }} {% end %} < {{ type.id }}
       {% for method in type.resolve.methods %}
         getter __on_list__{{ method.name }} = [] of Parameters_{{ method.name }}
+        class_getter __on_list__{{ method.name }} = [] of Parameters_{{ method.name }}
 
-        def {{ method.name }}({{ *method.args }}) {% if method.name != :initialize %} : {{ method.return_type }} {% end %}
-          parameters = @__on_list__{{ method.name }}.select do |parameter|
-            parameter.is_arg_match?({{ *method.args.map &.name }}) && !parameter.is_returned?
+        {% if method.name == :initialize %}
+          def {{ method.name }}({{ *method.args }})
+            parameters = @@__on_list__{{ method.name }}.select do |parameter|
+              parameter.is_arg_match?({{ *method.args.map &.name }}) && !parameter.is_called?
+            end
+            raise "Mock for the method {{ method.name }} not found" unless parameters.size > 0
+
+            parameters.first.is_called = true
+            nil
           end
-          raise "Mock for the method {{ method.name }} not found" unless parameters.size > 0
+        {% else %}
+          def {{ method.name }}({{ *method.args }}) : {{ method.return_type }}
+            parameters = @__on_list__{{ method.name }}.select do |parameter|
+              parameter.is_arg_match?({{ *method.args.map &.name }}) && !parameter.is_called?
+            end
+            raise "Mock for the method {{ method.name }} not found" unless parameters.size > 0
 
-          parameters.first.is_returned = true
+            parameters.first.is_called = true
 
-          {% if method.name != :initialize %}
             return_type = parameters.first.return_type
             raise "return_type Nil should not be returned for {{ method.name }}" if return_type.nil?
             return return_type.return_value.as({{ method.return_type }})
-          {% else %}
-            nil
-          {% end %}
-        end
+          end
+        {% end %}
 
         protected def __on__{{ method.name }}(parameters : Parameters_{{ method.name }})
           @__on_list__{{ method.name }} << parameters
+        end
+
+        protected def self.__on__{{ method.name }}(parameters : Parameters_{{ method.name }})
+          @@__on_list__{{ method.name }} << parameters
         end
       {% end %}
 
@@ -55,7 +68,7 @@ module Agyan
         {% end %}
 
         class Parameters_{{ method_name }}
-          property? is_returned : Bool = false
+          property? is_called : Bool = false
 
           {% if method_name != :initialize %}
             getter return_type : Nil {% for return_type in unique_return_types %}| ReturnType_{{ method_name }}_{{ return_type }}{% end %}
@@ -105,10 +118,30 @@ module Agyan
         parameters
       end
 
+      def self.on(method : Symbol)
+        {% methods = [] of Crystal::Macros::MacroId %}
+        {% for method_type in type.resolve.methods %}
+          {% methods << method_type.name %}
+        {% end %}
+        {% methods = methods.uniq %}
+        {% begin %}
+          case method
+          {% for method_name in methods %}
+            when :{{ method_name }}
+              parameters = Parameters_{{ method_name }}.new
+              self.__on__{{ method_name }}(parameters)
+          {% end %}
+          else
+            raise "Method #{method} not found in class"
+          end
+        {% end %}
+        parameters
+      end
+
       def self.assert_expectations(mock : self)
         {% for method in type.resolve.methods %}
           not_called_expectations = mock.__on_list__{{ method.name }}.select do |parameter|
-            !parameter.is_returned?
+            !parameter.is_called?
           end
           raise "`{{ method.name }}` was not called on a `#{mock.class}` instance" if not_called_expectations.size > 0
         {% end %}

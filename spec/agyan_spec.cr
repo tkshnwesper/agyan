@@ -92,5 +92,11 @@ describe Agyan do
       mock.some_method.should eq(123)
       MockedClass.assert_expectations(mock)
     end
+
+    it "mocks initialize methods" do
+      MockClassWithInitialize.on(:initialize).with(10)
+      mock = MockClassWithInitialize.new(10)
+      MockClassWithInitialize.assert_expectations(mock)
+    end
   end
 end

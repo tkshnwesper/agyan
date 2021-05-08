@@ -140,6 +140,25 @@ describe Vault do
 end
 ```
 
+### Asserting on the `initialize` method
+
+```crystal
+class ClassWithInitialize
+  def initialize(value : Int32)
+  end
+end
+
+mock_class(ClassWithInitialize)
+
+describe ClassWithInitialize do
+  it "mocks initialize methods" do
+    MockClassWithInitialize.on(:initialize).with(10)
+    mock = MockClassWithInitialize.new(10)
+    MockClassWithInitialize.assert_expectations(mock)
+  end
+end
+```
+
 ## Development
 
 Run tests using
