@@ -1,0 +1,28 @@
+on:
+  push:
+  pull_request:
+    branches: [master]
+  schedule:
+    - cron: "0 6 * * 6" # Every Saturday 6 AM
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+          - os: macos-latest
+          - os: windows-latest
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Download source
+        uses: actions/checkout@v2
+      - name: Install Crystal
+        uses: oprypin/install-crystal@v1
+      - name: Install shards
+        run: shards update --ignore-crystal-version
+      - name: Run tests
+        run: crystal spec --order=random
+      - name: Check formatting
+        run: crystal tool format --check
+        if: matrix.os == 'ubuntu-latest'
